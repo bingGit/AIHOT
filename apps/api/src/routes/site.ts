@@ -17,6 +17,7 @@ import { loadSiteStats } from "@aihot/backend/site/stats";
 import { itemAvailability } from "@aihot/backend/publication/availability";
 import { listTopicSummaries, loadTopicPage, topicBrowseLinks } from "@aihot/backend/publication/topics";
 import { registerFeedback } from "./feedback.ts";
+import { PreferenceFeedbackRejected, clearPreferenceFeedback, getPreferenceFeedback, submitPreferenceFeedback } from "@aihot/backend/operations/preference-feedback";
 import { loadHot, loadStoryDetail, resolveStory } from "@aihot/backend/publication/stories";
 import { listReports, loadReport, reportNavigation, loadReportNavigation, loadReportMonth, type ReportKind } from "@aihot/backend/publication/reports";
 import { looseQuery, QueryError, sendJsonWithEtag, sendProblem } from "../http/respond.ts";
@@ -31,6 +32,7 @@ export function siteHandler(fn: Handler): Handler {
       return await fn(req, reply);
     } catch (error) {
       if (error instanceof BadRequest || error instanceof QueryError) return sendProblem(req, reply, { status: 400, code: "invalid_request", detail: error.message });
+      if (error instanceof PreferenceFeedbackRejected) return sendProblem(req, reply, { status: error.status, code: error.status === 404 ? "not_found" : "invalid_request", detail: error.message });
       if (error instanceof InvalidCursorError) return sendProblem(req, reply, { status: 400, code: "invalid_cursor", detail: error.message });
       if (error instanceof SearchBusyError) {
         req.log = req.log.child({ reason: "search_capacity_exhausted" });
@@ -83,6 +85,22 @@ export function registerSite(app: FastifyInstance) {
     const search = q.q?.trim() ? q.q.trim().slice(0, 200) : null;
     const tab = q.tab === "relevance" ? "relevance" : "time";
     return sendJsonWithEtag(req, reply, await loadPool({ ...filters, q: search, tab, page }), { etagPrefix: "pool", cacheControl: "public, max-age=60, s-maxage=60" });
+  }));
+
+  app.get("/api/site/items/:id/preference-feedback", siteHandler(async (req, reply) => {
+    reply.header("Cache-Control", "no-store");
+    return reply.send(await getPreferenceFeedback((req.params as { id: string }).id));
+  }));
+
+  app.post("/api/site/items/:id/preference-feedback", siteHandler(async (req, reply) => {
+    reply.header("Cache-Control", "no-store");
+    const b = (req.body ?? {}) as { kind?: unknown; pageUrl?: unknown };
+    return reply.code(201).send(await submitPreferenceFeedback({ articleId: (req.params as { id: string }).id, kind: b.kind, pageUrl: b.pageUrl }));
+  }));
+
+  app.delete("/api/site/items/:id/preference-feedback", siteHandler(async (req, reply) => {
+    reply.header("Cache-Control", "no-store");
+    return reply.send(await clearPreferenceFeedback((req.params as { id: string }).id));
   }));
 
   app.get("/api/site/items/:id", siteHandler(async (req, reply) => {

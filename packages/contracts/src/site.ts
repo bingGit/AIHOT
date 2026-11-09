@@ -3,6 +3,21 @@
 import type { CategoryKey, ChannelKey } from "./taxonomy.ts";
 import { isoWeekRange, monthDay } from "./time.ts";
 
+export const PERSONAL_FEEDBACK_KINDS = ["more", "irrelevant", "marketing", "duplicate"] as const;
+export type PersonalFeedbackKind = typeof PERSONAL_FEEDBACK_KINDS[number];
+export const PERSONAL_FEEDBACK_LABELS: Record<PersonalFeedbackKind, string> = {
+  more: "想多看",
+  irrelevant: "不相关",
+  marketing: "广告/营销",
+  duplicate: "重复或低价值",
+};
+
+export interface PersonalFeedbackResponse {
+  articleId: string;
+  kind: PersonalFeedbackKind | null;
+  changed: boolean;
+}
+
 export interface SourceRef {
   /** The name readers see (publication/rules.ts publicSourceName), as is every source name here. */
   name: string;

@@ -18,6 +18,7 @@ import { replaceContactQr, setTargetEnabled, settingsOverview, updateBudget } fr
 import { createSource, fetchNow, listSources, previewSource, previewStoredSource, sourceDetail, updateSource } from "@aihot/backend/admin/sources";
 import { sendProblem } from "../http/respond.ts";
 import { adminHandler } from "./admin-auth.ts";
+import { preferenceFeedbackOverview } from "@aihot/backend/operations/preference-feedback";
 
 // What every admin route reads its request with (the modules' admin routes too).
 type Q = Record<string, string | undefined>;
@@ -91,6 +92,9 @@ export function registerAdmin(app: FastifyInstance) {
     await unbanSource(param(req, "hash"), actorOf(admin));
     return reply.code(204).send();
   }));
+
+  // Personal content preference feedback: reviewable aggregates, never automatic source edits.
+  app.get("/api/admin/preference-feedback", adminHandler(async (req) => preferenceFeedbackOverview(Number(q(req).days) || 30)));
 
   // Runs
   app.get("/api/admin/runs", adminHandler(async () => runsOverview()));

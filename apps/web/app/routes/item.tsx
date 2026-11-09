@@ -16,6 +16,7 @@ import { PillTabs } from "../components/ui/Tabs";
 import { ArticleLayout, RailSection, useContainedScroll } from "../components/ui/Page";
 import { Menu, MenuItem } from "../components/ui/Menu";
 import { StarButton } from "../features/feed/parts";
+import { FeedbackControl } from "../features/feed/FeedbackControl";
 import { GroupButton, GroupSources } from "../features/feed/ReadingGroup";
 import { StoryFollowups } from "../features/item/StoryFollowups";
 import { MediaGallery } from "../features/item/MediaGallery";
@@ -246,6 +247,7 @@ function ItemPreview({ preview }: { preview: FeedItemSummary }) {
       <ReaderToolbar
         item={preview}
         originalLabel={isX ? "原推" : "原文"}
+        feedback={<FeedbackControl articleId={preview.id} compact />}
         onShare={async () => {
           if ((await shareOrCopy(preview)) === "copied") setToast("链接已复制");
         }}
@@ -380,6 +382,7 @@ function ItemView({ item, followups }: Loaded) {
     <div className="flex items-center gap-1">
       {originalLink("flex-1 touch:h-11")}
       <StarButton item={item} className="size-8 touch:size-11" />
+      <FeedbackControl articleId={item.id} compact />
       {moreMenu}
     </div>
   );
@@ -487,6 +490,7 @@ function ItemView({ item, followups }: Loaded) {
             )}
             {originalLink("touch:h-11")}
             <StarButton item={item} className="size-8 touch:size-11" />
+            <FeedbackControl articleId={item.id} compact />
             {moreMenu}
           </div>
         </div>
@@ -620,6 +624,7 @@ function ItemView({ item, followups }: Loaded) {
         originalLabel={isX ? "原推" : "原文"}
         onOutline={showOutline ? () => setOutlineOpen(true) : undefined}
         onShare={() => void share()}
+        feedback={<FeedbackControl articleId={item.id} compact />}
       />
       {showOutline && <OutlineSheet open={outlineOpen} onClose={() => setOutlineOpen(false)} outline={item.outline} />}
       <ActionsSheet open={actionsOpen} onClose={() => setActionsOpen(false)} rows={phoneActions} />

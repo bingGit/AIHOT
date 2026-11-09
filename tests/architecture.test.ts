@@ -60,7 +60,7 @@ test("packages never import the apps, and nothing below the admin imports it", (
 // the image proxy. Admin and ingest routes may call any backend use case.
 const PRIVATE_ROUTES = new Set(["admin.ts", "admin-auth.ts", "ingest.ts"]);
 const PUBLIC_READS = [
-  /^publication\//, /^site\//, /^lib\//, /^config\.ts$/, /^operations\/feedback\.ts$/, /^media\//, /^jobs\/queue\.ts$/, /^modules\.ts$/,
+  /^publication\//, /^site\//, /^lib\//, /^config\.ts$/, /^operations\/(?:feedback|preference-feedback)\.ts$/, /^media\//, /^jobs\/queue\.ts$/, /^modules\.ts$/,
 ];
 
 test("public routes read content only through the public read layer", () => {
@@ -82,6 +82,7 @@ const OWNERS: Record<string, string> = {
   story_digests: "events/", grouping_decisions: "events/", grouping_overrides: "events/",
   audit_log: "audit.ts",
   feedback_submission_state: "operations/feedback.ts",
+  personal_content_feedback: "operations/preference-feedback.ts",
 };
 
 test("the tables that carry a rule are written only by the code that owns it", () => {

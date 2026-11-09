@@ -2,6 +2,7 @@
 // functions and the admin pages. Only administrators reach it; it changes with the admin UI and is
 // never a public contract. Rows mirror their SQL columns (snake_case); timestamps are ISO strings.
 import { ADMIN } from "@aihot/site";
+import type { PersonalFeedbackKind } from "./site.ts";
 
 /** Where signing in leads when the visitor was not headed anywhere: the admin pages, on a site that has them. */
 export const SIGN_IN_HOME = ADMIN ? "/admin" : "/";
@@ -63,7 +64,7 @@ export interface AdminRerun {
 }
 
 /** Items waiting for the admin, shown on the navigation. */
-export type AdminNavCounts = Partial<Record<"feedback" | "sources" | "runs", number>>;
+export type AdminNavCounts = Partial<Record<"feedback" | "preferenceFeedback" | "sources" | "runs", number>>;
 
 /** One manual change (audit_log), as a history list shows it. */
 export interface AdminAuditEntry {
@@ -298,6 +299,55 @@ export interface AdminFeedback {
   /** The suggestion pool, most asked first: how many senders asked for each idea, spam left out. */
   ideas: Array<{ idea: string; people: number }>;
   bans: Array<{ source_hash: string; reason: string | null; created_by: string | null; created_at: Timestamp; expires_at: Timestamp | null }>;
+}
+
+export interface AdminPreferenceFeedbackRow {
+  article_id: string;
+  kind: PersonalFeedbackKind;
+  title: string;
+  summary: string | null;
+  source_name: string;
+  author: string | null;
+  category: string | null;
+  tags: string[];
+  channel: "news" | "x";
+  page_url: string | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+export interface AdminPreferenceFeedbackCount {
+  kind: PersonalFeedbackKind;
+  count: number;
+}
+
+export interface AdminPreferenceFeedbackBreakdown {
+  label: string;
+  total: number;
+  more: number;
+  irrelevant: number;
+  marketing: number;
+  duplicate: number;
+}
+
+export interface AdminPreferenceFeedbackSuggestion {
+  key: string;
+  kind: "include" | "exclude" | "review";
+  title: string;
+  detail: string;
+  evidence: string[];
+  count: number;
+}
+
+export interface AdminPreferenceFeedback {
+  since: Timestamp;
+  total: number;
+  counts: AdminPreferenceFeedbackCount[];
+  sources: AdminPreferenceFeedbackBreakdown[];
+  categories: AdminPreferenceFeedbackBreakdown[];
+  tags: AdminPreferenceFeedbackBreakdown[];
+  recent: AdminPreferenceFeedbackRow[];
+  suggestions: AdminPreferenceFeedbackSuggestion[];
 }
 
 // Runs

@@ -11,6 +11,7 @@ import { SameEventBadge, SelectedBadge } from "../../components/ui/Badge";
 import { ScoreLabel } from "../../components/ui/Score";
 import { beijingTime } from "@aihot/contracts/time";
 import { MediaThumbs, SourceLine, StarButton, readTone } from "./parts";
+import { FeedbackControl } from "./FeedbackControl";
 import { GroupButton, GroupSources } from "./ReadingGroup";
 import { QuotedLine } from "../item/QuotedPost";
 import { rememberPreview } from "../item/preview";
@@ -57,6 +58,7 @@ export const FeedItem = memo(function FeedItem({ item, group, filters, read = fa
           <span className="lg:hidden">
             <ScoreLabel score={item.score} compact />
           </span>
+          <FeedbackControl articleId={item.id} compact />
           <span className="-my-[11px] -mr-3 inline-flex lg:-my-1 lg:mr-0">
             <StarButton item={item} className="size-11 lg:size-[26px]" />
           </span>

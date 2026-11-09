@@ -54,7 +54,7 @@ function Tool({ icon, label, onClick, href, pressed }: { icon: ReactNode; label:
   );
 }
 
-export function ReaderToolbar({ item, originalUrl, originalLabel, onOutline, onShare }: {
+export function ReaderToolbar({ item, originalUrl, originalLabel, onOutline, onShare, feedback }: {
   item: Starrable;
   /** Missing while the article is still loading. */
   originalUrl?: string;
@@ -62,6 +62,7 @@ export function ReaderToolbar({ item, originalUrl, originalLabel, onOutline, onS
   /** Long reads: opens the outline. */
   onOutline?: () => void;
   onShare: () => void;
+  feedback?: ReactNode;
 }) {
   const hidden = useReadingDown();
   const star = useStar(item);
@@ -70,7 +71,7 @@ export function ReaderToolbar({ item, originalUrl, originalLabel, onOutline, onS
       aria-label="阅读工具"
       className={`fixed inset-x-0 bottom-0 z-40 bg-surface/90 pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] shadow-[0_-1px_0_var(--line)] backdrop-blur-xl backdrop-saturate-150 transition-transform duration-300 ease-[var(--ease-out-quart)] lg:hidden ${hidden ? "translate-y-full" : ""}`}
     >
-      <div className={`mx-auto grid h-[50px] max-w-[640px] ${onOutline ? "grid-cols-4" : "grid-cols-3"}`}>
+      <div className={`mx-auto grid h-[50px] max-w-[640px] ${feedback ? onOutline ? "grid-cols-5" : "grid-cols-4" : onOutline ? "grid-cols-4" : "grid-cols-3"}`}>
         <Tool
           pressed={star.on}
           onClick={star.toggle}
@@ -82,6 +83,7 @@ export function ReaderToolbar({ item, originalUrl, originalLabel, onOutline, onS
           }
         />
         {onOutline && <Tool onClick={onOutline} label="目录" icon={<IconList size={22} />} />}
+        {feedback && <div className="flex items-center justify-center">{feedback}</div>}
         <Tool onClick={onShare} label="分享" icon={<IconShare size={22} />} />
         {originalUrl ? <Tool href={originalUrl} label={originalLabel} icon={<IconExternal size={22} />} /> : <Tool label={originalLabel} icon={<IconExternal size={22} />} />}
       </div>
